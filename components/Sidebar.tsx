@@ -5,29 +5,35 @@ import { usePathname } from 'next/navigation';
 import { ChevronDown, ChevronRight, BookOpen } from 'lucide-react';
 import { useState } from 'react';
 
-interface SidebarItem {
+export interface SidebarItem {
   title: string;
   slug: string;
-  category: string;
+  categories: string[];
 }
 
 interface SidebarProps {
   items: SidebarItem[];
   categories: { name: string; slug: string; count: number }[];
+  onLinkClick?: () => void;
 }
 
-export default function Sidebar({ items, categories }: SidebarProps) {
+export default function Sidebar({
+  items,
+  categories,
+  onLinkClick,
+}: SidebarProps) {
   const pathname = usePathname();
 
   // Group items by category - this logic must be BEFORE component state logic that uses it
   const itemsByCategory = categories.map((category) => ({
     ...category,
     items: items.filter((item) => {
-      const itemCategorySlug = item.category
-        .toLowerCase()
-        .replace(/\s+/g, '-')
-        .replace(/&/g, 'and');
-      return itemCategorySlug === category.slug;
+      // Check if any of the item's categories matches this category
+      return item.categories.some(
+        (cat) =>
+          cat.toLowerCase().replace(/\s+/g, '-').replace(/&/g, 'and') ===
+          category.slug,
+      );
     }),
   }));
 
@@ -60,6 +66,8 @@ export default function Sidebar({ items, categories }: SidebarProps) {
           const hasActiveItem = category.items.some(
             (item) => pathname === `/${item.slug}`,
           );
+
+          if (category.items.length === 0) return null;
 
           return (
             <div key={category.slug} className="mb-2">
@@ -101,6 +109,7 @@ export default function Sidebar({ items, categories }: SidebarProps) {
                       <Link
                         key={item.slug}
                         href={`/${item.slug}`}
+                        onClick={onLinkClick}
                         className={`
                           block px-3 py-1.5 text-sm rounded-md transition-all duration-150
                           ${

@@ -83,6 +83,11 @@ function CodeBlock({ language, value }: CodeBlockProps) {
 }
 
 export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
+  // Enhanced regex to strip common emojis
+  const emojiRegex =
+    /(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/g;
+  const cleanContent = content.replace(emojiRegex, '');
+
   return (
     <article className="prose prose-lg max-w-none">
       <ReactMarkdown
@@ -139,7 +144,7 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
               .replace(/\s+/g, '-')
               .replace(/[^\w-]/g, '');
             return (
-              <h2 id={id} {...props}>
+              <h2 id={id} className="scroll-mt-24" {...props}>
                 {children}
               </h2>
             );
@@ -150,7 +155,7 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
               .replace(/\s+/g, '-')
               .replace(/[^\w-]/g, '');
             return (
-              <h3 id={id} {...props}>
+              <h3 id={id} className="scroll-mt-24" {...props}>
                 {children}
               </h3>
             );
@@ -169,7 +174,7 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
           },
         }}
       >
-        {content}
+        {cleanContent}
       </ReactMarkdown>
     </article>
   );

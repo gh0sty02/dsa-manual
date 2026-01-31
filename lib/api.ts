@@ -9,7 +9,7 @@ export interface Post {
   slug: string;
   title: string;
   content: string;
-  category?: string;
+  categories: string[];
   difficulty?: string;
   prerequisites?: string[];
   estimatedReadingTime?: string;
@@ -60,50 +60,48 @@ function extractMetadata(content: string) {
   // Clean up extra newlines at start
   cleanContent = cleanContent.replace(/^\s+/, '');
 
+  // Remove the first H1 if it exists (since we render it separately)
+  cleanContent = cleanContent.replace(/^#\s+(.+?)(?:\n|$)/, '');
+  cleanContent = cleanContent.replace(/^\s+/, '');
+
   return { cleanContent, difficulty, prerequisites, estimatedReadingTime };
 }
 
 // Pattern category mapping based on filename prefixes/keywords
 const categoryKeywords: Record<string, string[]> = {
-  'Dynamic Programming': ['knapsack', 'fibonacci', 'dynamic-programming'],
-  'Two Pointers & Sliding Window': [
+  'Arrays & Strings': [
     'two-pointers',
     'sliding-window',
-    'fast-slow',
+    'cyclic-sort',
+    'merge-intervals',
+    'prefix-sum',
+    'monotonic-stack',
+    'greedy',
   ],
-  'Arrays & Sorting': ['cyclic-sort', 'merge-intervals'],
-  'Linked Lists': ['linked-list', 'reversal'],
+  'Linked Lists': ['fast-slow', 'reversal', 'linked-list'],
   'Stacks & Queues': ['stacks', 'monotonic-stack'],
-  'Hash Maps & Sets': ['hash-maps', 'ordered-set'],
-  'Trees & Graphs': [
-    'tree-bfs',
-    'graphs',
-    'island',
-    'trie',
-    'topological',
-    'union-find',
-  ],
+  'Hash Tables': ['hash-maps'],
+  Trees: ['tree-bfs', 'trie'],
+  Graphs: ['graphs', 'island', 'topological', 'union-find'],
   Heaps: ['two-heaps', 'top-k', 'k-way-merge'],
+  'Searching & Sorting': ['binary-search', 'ordered-set'],
   'Recursion & Backtracking': ['subsets', 'backtracking'],
-  'Binary Search': ['binary-search'],
+  'Dynamic Programming': ['knapsack', 'fibonacci', 'dynamic-programming'],
   'Bit Manipulation': ['bitwise', 'xor'],
-  Greedy: ['greedy'],
-  'Math & Prefix': ['prefix-sum'],
 };
 
-function getCategoryFromSlug(slug: string): string {
+function getCategoriesFromSlug(slug: string): string[] {
   const lowerSlug = slug.toLowerCase();
+  const matchedCategories: string[] = [];
 
   for (const [category, keywords] of Object.entries(categoryKeywords)) {
     if (keywords.some((keyword) => lowerSlug.includes(keyword))) {
-      return category;
+      matchedCategories.push(category);
     }
   }
 
-  return 'Other';
+  return matchedCategories.length > 0 ? matchedCategories : ['Other'];
 }
-
-// Remove old getDifficultyFromContent
 
 export function getPostSlugs() {
   try {
@@ -150,13 +148,13 @@ export function getPostBySlug(slug: string): Post | null {
     // Extract metadata and clean content
     const { cleanContent, difficulty, prerequisites, estimatedReadingTime } =
       extractMetadata(content);
-    const category = getCategoryFromSlug(realSlug);
+    const categories = getCategoriesFromSlug(realSlug);
 
     return {
       slug: realSlug,
       title,
       content: cleanContent,
-      category,
+      categories,
       difficulty,
       prerequisites,
       estimatedReadingTime,
@@ -182,8 +180,9 @@ export function getCategories(): Category[] {
   const categoryMap = new Map<string, number>();
 
   posts.forEach((post) => {
-    const category = post.category || 'Other';
-    categoryMap.set(category, (categoryMap.get(category) || 0) + 1);
+    post.categories.forEach((category) => {
+      categoryMap.set(category, (categoryMap.get(category) || 0) + 1);
+    });
   });
 
   return Array.from(categoryMap.entries())
@@ -198,10 +197,10 @@ export function getCategories(): Category[] {
 export function getPostsByCategory(categorySlug: string): Post[] {
   const posts = getAllPosts();
   return posts.filter((post) => {
-    const postCategorySlug = (post.category || 'Other')
-      .toLowerCase()
-      .replace(/\s+/g, '-')
-      .replace(/&/g, 'and');
-    return postCategorySlug === categorySlug;
+    return post.categories.some(
+      (cat) =>
+        cat.toLowerCase().replace(/\s+/g, '-').replace(/&/g, 'and') ===
+        categorySlug,
+    );
   });
 }

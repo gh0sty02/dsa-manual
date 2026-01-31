@@ -1,6 +1,7 @@
 import { getAllPosts, getPostBySlug, getCategories } from '@/lib/api';
 import MarkdownRenderer from '@/components/MarkdownRenderer';
 import Sidebar from '@/components/Sidebar';
+import MobileSidebar from '@/components/MobileSidebar';
 import ScrollToTop from '@/components/ScrollToTop';
 import TableOfContents from '@/components/TableOfContents';
 import { notFound } from 'next/navigation';
@@ -41,7 +42,8 @@ export default async function PatternPage({
   const sidebarItems = posts.map((p) => ({
     title: p.title,
     slug: p.slug,
-    category: p.category || 'Other',
+    categories:
+      p.categories && p.categories.length > 0 ? p.categories : ['Other'],
   }));
 
   // Estimate read time (fallback calculation)
@@ -58,7 +60,11 @@ export default async function PatternPage({
       const match = line.match(/^(#{2,3})\s+(.+)$/);
       if (!match) return null;
       const level = match[1].length;
-      const text = match[2];
+      // Strip emojis from text
+      const emojiRegex =
+        /(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/g;
+      const text = match[2].replace(emojiRegex, '').trim();
+
       const id = text
         .toLowerCase()
         .replace(/\s+/g, '-')
@@ -75,14 +81,17 @@ export default async function PatternPage({
       <header className="sticky top-0 z-50 backdrop-blur-md bg-[var(--background)]/80 border-b border-[var(--border)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <Link href="/" className="flex items-center gap-3 group">
-              <div className="p-2 rounded-lg bg-[var(--accent)] text-white group-hover:scale-105 transition-transform">
-                <Code2 size={20} />
-              </div>
-              <span className="font-display font-bold text-lg text-[var(--foreground)] hidden sm:block">
-                DSA Patterns
-              </span>
-            </Link>
+            <div className="flex items-center">
+              <MobileSidebar items={sidebarItems} categories={categories} />
+              <Link href="/" className="flex items-center gap-3 group">
+                <div className="p-2 rounded-lg bg-[var(--accent)] text-white group-hover:scale-105 transition-transform">
+                  <Code2 size={20} />
+                </div>
+                <span className="font-display font-bold text-lg text-[var(--foreground)] hidden sm:block">
+                  DSA Patterns
+                </span>
+              </Link>
+            </div>
 
             <div className="flex items-center gap-4">
               <Link
@@ -126,12 +135,16 @@ export default async function PatternPage({
               <header className="mb-10 animate-fade-in">
                 {/* Meta Badges */}
                 <div className="flex flex-wrap items-center gap-3 mb-6">
-                  {post.category && (
-                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-[var(--accent-light)] text-[var(--accent)]">
-                      <Tag size={12} className="mr-1.5" />
-                      {post.category}
-                    </span>
-                  )}
+                  {post.categories &&
+                    post.categories.map((cat) => (
+                      <span
+                        key={cat}
+                        className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-[var(--accent-light)] text-[var(--accent)]"
+                      >
+                        <Tag size={12} className="mr-1.5" />
+                        {cat}
+                      </span>
+                    ))}
                   {post.difficulty && (
                     <span
                       className={`
