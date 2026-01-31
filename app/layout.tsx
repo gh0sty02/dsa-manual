@@ -28,7 +28,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'DSA Patterns | Master Data Structures & Algorithms',
+  title: 'DSA Manual | Master Data Structures & Algorithms',
   description:
     'A comprehensive guide to mastering DSA patterns for coding interviews. Learn with visual explanations and practical examples.',
   keywords: [

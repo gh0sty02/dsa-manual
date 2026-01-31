@@ -28,7 +28,10 @@ export default function Home() {
   const sidebarItems = posts.map((post) => ({
     title: post.title,
     slug: post.slug,
-    category: post.category || 'Other',
+    categories:
+      post.categories && post.categories.length > 0
+        ? post.categories
+        : ['Other'],
   }));
 
   return (
@@ -42,7 +45,7 @@ export default function Home() {
                 <Code2 size={20} />
               </div>
               <span className="font-display font-bold text-lg text-[var(--foreground)]">
-                DSA Patterns
+                DSA Manual
               </span>
             </Link>
 
@@ -79,11 +82,11 @@ export default function Home() {
                 <div className="relative z-10">
                   <div className="flex items-center gap-2 text-white/80 text-sm font-medium mb-4">
                     <Sparkles size={16} />
-                    Master DSA Patterns
+                    The DSA Manual
                   </div>
                   <h1 className="font-display text-3xl md:text-4xl lg:text-5xl font-extrabold text-white mb-4 tracking-tight">
                     Data Structures &<br />
-                    Algorithms Patterns
+                    Algorithms Manual
                   </h1>
                   <p className="text-white/80 text-lg max-w-xl mb-6">
                     A comprehensive collection of {posts.length} DSA patterns to
@@ -156,7 +159,9 @@ export default function Home() {
                     >
                       <div className="flex items-center gap-2 mb-3">
                         <span className="text-xs font-medium px-2 py-1 rounded-full bg-[var(--accent-light)] text-[var(--accent)]">
-                          {post.category}
+                          {post.categories && post.categories.length > 0
+                            ? post.categories[0]
+                            : post.category || 'Other'}
                         </span>
                       </div>
                       <h3 className="font-display font-bold text-lg text-[var(--foreground)] group-hover:text-[var(--accent)] transition-colors mb-2 line-clamp-2">
@@ -207,7 +212,11 @@ export default function Home() {
                           {post.title}
                         </h3>
                         <div className="flex items-center gap-2 text-xs text-[var(--foreground-muted)]">
-                          <span>{post.category}</span>
+                          <span>
+                            {post.categories && post.categories.length > 0
+                              ? post.categories[0]
+                              : post.category || 'Other'}
+                          </span>
                           <span>•</span>
                           <span>{post.difficulty}</span>
                         </div>
@@ -231,7 +240,7 @@ export default function Home() {
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-[var(--foreground-muted)]">
             <div className="flex items-center gap-2">
               <Code2 size={18} className="text-[var(--accent)]" />
-              <span>DSA Patterns</span>
+              <span>DSA Manual</span>
             </div>
             <div>Built with Next.js • Open Source</div>
           </div>

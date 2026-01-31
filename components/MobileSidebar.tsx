@@ -51,7 +51,7 @@ export default function MobileSidebar({
               <Code2 size={18} />
             </div>
             <span className="font-display font-bold text-lg text-[var(--foreground)]">
-              DSA Patterns
+              DSA Manual
             </span>
           </Link>
           <button

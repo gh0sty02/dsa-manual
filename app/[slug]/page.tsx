@@ -88,7 +88,7 @@ export default async function PatternPage({
                   <Code2 size={20} />
                 </div>
                 <span className="font-display font-bold text-lg text-[var(--foreground)] hidden sm:block">
-                  DSA Patterns
+                  DSA Manual
                 </span>
               </Link>
             </div>
